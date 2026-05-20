@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateUserRequest(
-	@NotBlank String username,
-	@NotBlank @Email String email,
-	@NotBlank String fullName,
-	@NotNull UserRole role
+	@NotBlank(message = "username is required") String username,
+	@NotBlank(message = "email is required") @Email(message = "email must be a valid email address") String email,
+	@NotBlank(message = "fullName is required") String fullName,
+	@NotNull(message = "role is required") UserRole role
 ) {
 }

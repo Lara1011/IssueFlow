@@ -8,9 +8,9 @@
 
 ## 2. Users API
 
-- [ ] Implementation
-- [ ] Tests
-- [ ] Manual verification
+- [x] Implementation
+- [x] Tests
+- [x] Manual verification
 
 ## 3. Projects API
 

@@ -1,9 +1,13 @@
 package com.att.tdp.issueflow.exception;
 
+import com.att.tdp.issueflow.enums.UserRole;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -40,7 +44,8 @@ public class GlobalExceptionHandler {
 		HttpMessageNotReadableException exception,
 		HttpServletRequest request
 	) {
-		return buildResponse(HttpStatus.BAD_REQUEST, "Request body is invalid", request, Map.of());
+		String message = resolveUnreadableBodyMessage(exception);
+		return buildResponse(HttpStatus.BAD_REQUEST, message, request, Map.of());
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
@@ -80,5 +85,23 @@ public class GlobalExceptionHandler {
 		);
 
 		return ResponseEntity.status(status).body(response);
+	}
+
+	private String resolveUnreadableBodyMessage(HttpMessageNotReadableException exception) {
+		Throwable cause = exception.getCause();
+		if (cause instanceof InvalidFormatException invalidFormatException
+			&& invalidFormatException.getTargetType() == UserRole.class
+			&& invalidFormatException.getPath() != null
+			&& invalidFormatException.getPath().stream().anyMatch(reference -> "role".equals(reference.getFieldName()))) {
+			return "role must be one of: " + acceptedValues(UserRole.class);
+		}
+
+		return "Request body is invalid";
+	}
+
+	private String acceptedValues(Class<? extends Enum<?>> enumType) {
+		return Arrays.stream(enumType.getEnumConstants())
+			.map(Enum::name)
+			.collect(Collectors.joining(", "));
 	}
 }

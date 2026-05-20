@@ -58,6 +58,54 @@ Relevant files created or updated from this prompt:
 - `prompts.md`
 - `implementation-plan.md`
 
+## Prompt 2 – Users API
+
+Summary of prompt:
+
+- Implement only the Users API feature from `README.md`.
+- Do not implement authentication/JWT, projects, tickets, comments, or other features yet.
+- Add request validation for username, email, full name, and role.
+- Keep controllers thin and place business logic in `UserService`.
+- Use DTOs rather than exposing JPA entities.
+- Check duplicate username and email during user creation.
+- Return consistent 404-style JSON errors for missing users through the global exception handler.
+- Hard delete users, since soft delete is required only for tickets and projects.
+- Add MockMvc integration tests for create, list, get by ID, update, delete, validation, duplicate checks, and not found.
+- Run `./mvnw test` and mark the Users API plan item complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/UserController.java`
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateUserRequest.java`
+- `src/main/java/com/att/tdp/issueflow/repository/UserRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/UserService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/UserControllerIntegrationTest.java`
+- `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker`
+- `prompts.md`
+- `implementation-plan.md`
+
+## Prompt 2.1 – Users API validation error fix
+
+Summary of prompt:
+
+- Fix only Users API validation and error handling behavior.
+- Ensure invalid role values such as `MANAGER` return `400 Bad Request` with an informative message.
+- Keep the response in the existing global JSON error format.
+- Handle Jackson enum parse errors through `GlobalExceptionHandler`.
+- Keep accepted roles limited to `ADMIN` and `DEVELOPER`.
+- Improve validation messages for invalid email, blank username, blank full name, and missing role.
+- Verify update behavior only changes `fullName` and `role`, and ignores extra `username` or `email` fields.
+- Add or update tests for invalid role, invalid email, update behavior, and extra update fields.
+- Run `./mvnw test`.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/dto/CreateUserRequest.java`
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateUserRequest.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/test/java/com/att/tdp/issueflow/controller/UserControllerIntegrationTest.java`
+- `prompts.md`
+
 ## Future prompts
 
 Add each future feature prompt here with:
