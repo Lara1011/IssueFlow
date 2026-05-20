@@ -1,0 +1,18 @@
+package com.att.tdp.issueflow.enums;
+
+public enum AuditAction {
+	CREATE,
+	UPDATE,
+	DELETE,
+	RESTORE,
+	LOGIN,
+	LOGOUT,
+	AUTO_ASSIGN,
+	AUTO_ESCALATE,
+	ADD_DEPENDENCY,
+	REMOVE_DEPENDENCY,
+	IMPORT,
+	EXPORT,
+	UPLOAD_ATTACHMENT,
+	DELETE_ATTACHMENT
+}

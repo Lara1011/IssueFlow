@@ -2,9 +2,9 @@
 
 ## 1. Project structure/foundation
 
-- [ ] Implementation
-- [ ] Tests
-- [ ] Manual verification
+- [x] Implementation
+- [x] Tests
+- [x] Manual verification
 
 ## 2. Users API
 
@@ -95,4 +95,3 @@
 - [ ] Implementation
 - [ ] Tests
 - [ ] Manual verification
-
