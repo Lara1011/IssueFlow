@@ -18,24 +18,24 @@ public class CommentService {
 	private final CommentRepository commentRepository;
 	private final TicketRepository ticketRepository;
 	private final UserRepository userRepository;
+	private final MentionService mentionService;
 
 	public CommentService(
 		CommentRepository commentRepository,
 		TicketRepository ticketRepository,
-		UserRepository userRepository
+		UserRepository userRepository,
+		MentionService mentionService
 	) {
 		this.commentRepository = commentRepository;
 		this.ticketRepository = ticketRepository;
 		this.userRepository = userRepository;
+		this.mentionService = mentionService;
 	}
 
 	@Transactional(readOnly = true)
 	public List<CommentResponse> getCommentsForTicket(Long ticketId) {
 		validateActiveTicket(ticketId);
-		return commentRepository.findAllByTicketId(ticketId)
-			.stream()
-			.map(this::toResponse)
-			.toList();
+		return mentionService.toCommentResponses(commentRepository.findAllByTicketId(ticketId));
 	}
 
 	@Transactional
@@ -48,7 +48,9 @@ public class CommentService {
 		comment.setAuthorId(request.authorId());
 		comment.setContent(request.content());
 
-		return toResponse(commentRepository.save(comment));
+		Comment savedComment = commentRepository.save(comment);
+		mentionService.syncMentionsForComment(savedComment);
+		return mentionService.toCommentResponse(savedComment);
 	}
 
 	@Transactional
@@ -56,12 +58,14 @@ public class CommentService {
 		validateActiveTicket(ticketId);
 		Comment comment = findCommentForTicket(ticketId, commentId);
 		comment.setContent(request.content());
+		mentionService.syncMentionsForComment(comment);
 	}
 
 	@Transactional
 	public void deleteComment(Long ticketId, Long commentId) {
 		validateActiveTicket(ticketId);
 		Comment comment = findCommentForTicket(ticketId, commentId);
+		mentionService.deleteMentionsForComment(comment.getId());
 		commentRepository.delete(comment);
 	}
 
@@ -84,15 +88,5 @@ public class CommentService {
 			throw new ResourceNotFoundException("Comment " + commentId + " does not belong to ticket " + ticketId);
 		}
 		return comment;
-	}
-
-	private CommentResponse toResponse(Comment comment) {
-		return new CommentResponse(
-			comment.getId(),
-			comment.getTicketId(),
-			comment.getAuthorId(),
-			comment.getContent(),
-			List.of()
-		);
 	}
 }

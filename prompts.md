@@ -302,6 +302,41 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 7 – Mentions API
+
+Summary of prompt:
+
+- Implement only the Mentions feature.
+- Parse `@username` references in comment content.
+- Match usernames case-insensitively and ignore unknown usernames.
+- Persist mention associations without duplicate rows for repeated usernames in the same comment.
+- Populate `mentionedUsers` in existing comment responses.
+- Re-evaluate mentions when a comment is updated, adding new mentions and removing mentions no longer present.
+- Add `GET /users/{userId}/mentions` with `page` and `pageSize` query parameters.
+- Return mentioned comments newest first with response shape `{ data, total, page }`.
+- Validate mentioned user existence and page parameters with informative errors.
+- Keep comments optimistic locking behavior unchanged.
+- Do not implement audit logs, dependencies, attachments, import/export, authentication/JWT, auto-assignment, or auto-escalation.
+- Add integration tests for parsing, case-insensitive matching, unknown users, duplicate mentions, comment response population, update re-sync, mention listing, ordering, pagination, not-found, and invalid paging.
+- Run `./mvnw test` and mark Mentions implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/MentionController.java`
+- `src/main/java/com/att/tdp/issueflow/repository/CommentMentionRepository.java`
+- `src/main/java/com/att/tdp/issueflow/repository/CommentRepository.java`
+- `src/main/java/com/att/tdp/issueflow/repository/UserRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/CommentService.java`
+- `src/main/java/com/att/tdp/issueflow/service/MentionService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/CommentControllerIntegrationTest.java`
+- `src/test/java/com/att/tdp/issueflow/controller/MentionControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

@@ -38,8 +38,8 @@
 
 ## 7. Mentions
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 8. Audit logs
