@@ -40,6 +40,9 @@ public class Ticket extends BaseEntity {
 
 	private Instant dueDate;
 
+	@Column(nullable = false)
+	private boolean overdue = false;
+
 	private Instant deletedAt;
 
 	@Version
@@ -107,6 +110,14 @@ public class Ticket extends BaseEntity {
 
 	public void setDueDate(Instant dueDate) {
 		this.dueDate = dueDate;
+	}
+
+	public boolean isOverdue() {
+		return overdue;
+	}
+
+	public void setOverdue(boolean overdue) {
+		this.overdue = overdue;
 	}
 
 	public Instant getDeletedAt() {

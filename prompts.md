@@ -581,6 +581,45 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 15 – Auto-Escalation Scheduler
+
+Summary of prompt:
+
+- Implement only Auto-Escalation scheduler behavior.
+- Keep changes focused on ticket `dueDate`, `isOverdue`, priority escalation, scheduler/service logic, audit logs, and tests.
+- Persist `isOverdue` on tickets and return it in ticket responses.
+- Continue accepting optional `dueDate` on ticket creation and now allow `dueDate` updates through `PATCH /tickets/{ticketId}`.
+- Keep `projectId` and `type` non-updatable and keep DONE-ticket update restrictions unchanged.
+- Add `TicketEscalationService` with public `runEscalationCycle()` for tests and a scheduled wrapper for runtime.
+- Enable scheduling and make the escalation interval configurable through `issueflow.auto-escalation`.
+- Escalate only active, non-DONE, non-deleted tickets with a due date before the current time.
+- Promote overdue priorities one level per cycle: `LOW -> MEDIUM -> HIGH -> CRITICAL`.
+- Set `isOverdue = true` once an overdue ticket is `CRITICAL`; do not escalate beyond `CRITICAL`.
+- Clear `isOverdue` when a user manually changes priority through PATCH.
+- Record `AUTO_ESCALATE` audit logs with actor `SYSTEM` when escalation changes priority or `isOverdue`.
+- Add integration tests for due date create/update behavior, escalation levels, exclusions, status preservation, manual priority reset, audit logging, and duplicate audit prevention.
+- Run `./mvnw test` and mark Auto-escalation implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/IssueFlowApplication.java`
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateTicketRequest.java`
+- `src/main/java/com/att/tdp/issueflow/entity/Ticket.java`
+- `src/main/java/com/att/tdp/issueflow/repository/TicketRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketEscalationService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/main/resources/application.yaml`
+- `src/test/resources/application.yaml`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketControllerIntegrationTest.java`
+- `src/test/java/com/att/tdp/issueflow/service/TicketEscalationServiceIntegrationTest.java`
+- `run.md`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

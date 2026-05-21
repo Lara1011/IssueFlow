@@ -126,10 +126,16 @@ public class TicketService {
 			ticket.setStatus(request.status());
 		}
 		if (request.priority() != null) {
+			if (request.priority() != ticket.getPriority()) {
+				ticket.setOverdue(false);
+			}
 			ticket.setPriority(request.priority());
 		}
 		if (request.assigneeId() != null) {
 			ticket.setAssigneeId(request.assigneeId());
+		}
+		if (request.dueDate() != null) {
+			ticket.setDueDate(request.dueDate());
 		}
 		auditLogService.record(AuditAction.UPDATE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
 	}
@@ -240,7 +246,7 @@ public class TicketService {
 			ticket.getProjectId(),
 			ticket.getAssigneeId(),
 			ticket.getDueDate(),
-			false
+			ticket.isOverdue()
 		);
 	}
 }

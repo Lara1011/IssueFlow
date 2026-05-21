@@ -2,6 +2,7 @@ package com.att.tdp.issueflow.repository;
 
 import com.att.tdp.issueflow.entity.Ticket;
 import com.att.tdp.issueflow.enums.TicketStatus;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 	List<Ticket> findAllByProjectIdAndDeletedAtIsNullOrderByIdAsc(Long projectId);
 
 	List<Ticket> findAllByProjectIdAndDeletedAtIsNotNullOrderByDeletedAtDescIdDesc(Long projectId);
+
+	List<Ticket> findAllByDueDateBeforeAndDeletedAtIsNullAndStatusNot(Instant dueDate, TicketStatus status);
 
 	Optional<Ticket> findByIdAndDeletedAtIsNull(Long id);
 

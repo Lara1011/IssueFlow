@@ -50,6 +50,11 @@ Protected requests require:
 Authorization: Bearer <accessToken>
 ```
 
+## Auto-Escalation
+
+Overdue tickets are auto-escalated on a configurable schedule using `issueflow.auto-escalation.fixed-delay-ms`.
+The escalation logic is also covered directly by service-level tests through `TicketEscalationService.runEscalationCycle()`.
+
 ## Test
 
 ```bash
