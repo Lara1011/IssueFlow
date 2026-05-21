@@ -13,6 +13,7 @@ import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.ProjectRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
 import com.att.tdp.issueflow.repository.UserRepository;
+import com.att.tdp.issueflow.security.CurrentUserProvider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -56,17 +57,20 @@ public class TicketCsvService {
 	private final ProjectRepository projectRepository;
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
+	private final CurrentUserProvider currentUserProvider;
 
 	public TicketCsvService(
 		TicketRepository ticketRepository,
 		ProjectRepository projectRepository,
 		UserRepository userRepository,
-		AuditLogService auditLogService
+		AuditLogService auditLogService,
+		CurrentUserProvider currentUserProvider
 	) {
 		this.ticketRepository = ticketRepository;
 		this.projectRepository = projectRepository;
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
+		this.currentUserProvider = currentUserProvider;
 	}
 
 	@Transactional
@@ -93,7 +97,13 @@ public class TicketCsvService {
 				);
 			}
 			printer.flush();
-			auditLogService.record(AuditAction.EXPORT, AuditEntityType.TICKET, projectId, null, AuditActor.USER);
+			auditLogService.record(
+				AuditAction.EXPORT,
+				AuditEntityType.TICKET,
+				projectId,
+				currentUserProvider.currentUserIdOrNull(),
+				AuditActor.USER
+			);
 			return writer.toString();
 		}
 		catch (IOException exception) {
@@ -133,7 +143,13 @@ public class TicketCsvService {
 			throw new IllegalArgumentException("CSV file is malformed or could not be read");
 		}
 
-		auditLogService.record(AuditAction.IMPORT, AuditEntityType.TICKET, projectId, null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.IMPORT,
+			AuditEntityType.TICKET,
+			projectId,
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 		return new ImportTicketsResponse(created, errors.size(), errors);
 	}
 

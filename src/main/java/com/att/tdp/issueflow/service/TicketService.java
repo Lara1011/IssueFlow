@@ -14,6 +14,7 @@ import com.att.tdp.issueflow.repository.ProjectRepository;
 import com.att.tdp.issueflow.repository.TicketDependencyRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
 import com.att.tdp.issueflow.repository.UserRepository;
+import com.att.tdp.issueflow.security.CurrentUserProvider;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class TicketService {
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
 	private final WorkloadService workloadService;
+	private final CurrentUserProvider currentUserProvider;
 
 	public TicketService(
 		TicketRepository ticketRepository,
@@ -36,7 +38,8 @@ public class TicketService {
 		TicketDependencyRepository ticketDependencyRepository,
 		UserRepository userRepository,
 		AuditLogService auditLogService,
-		WorkloadService workloadService
+		WorkloadService workloadService,
+		CurrentUserProvider currentUserProvider
 	) {
 		this.ticketRepository = ticketRepository;
 		this.projectRepository = projectRepository;
@@ -44,6 +47,7 @@ public class TicketService {
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
 		this.workloadService = workloadService;
+		this.currentUserProvider = currentUserProvider;
 	}
 
 	@Transactional(readOnly = true)
@@ -93,7 +97,13 @@ public class TicketService {
 		ticket.setDueDate(request.dueDate());
 
 		Ticket savedTicket = ticketRepository.save(ticket);
-		auditLogService.record(AuditAction.CREATE, AuditEntityType.TICKET, savedTicket.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.CREATE,
+			AuditEntityType.TICKET,
+			savedTicket.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 		if (autoAssigned) {
 			auditLogService.record(
 				AuditAction.AUTO_ASSIGN,
@@ -137,14 +147,26 @@ public class TicketService {
 		if (request.dueDate() != null) {
 			ticket.setDueDate(request.dueDate());
 		}
-		auditLogService.record(AuditAction.UPDATE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.UPDATE,
+			AuditEntityType.TICKET,
+			ticket.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 	}
 
 	@Transactional
 	public void deleteTicket(Long ticketId) {
 		Ticket ticket = findActiveTicket(ticketId);
 		ticket.setDeletedAt(Instant.now());
-		auditLogService.record(AuditAction.DELETE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.DELETE,
+			AuditEntityType.TICKET,
+			ticket.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 	}
 
 	@Transactional
@@ -157,7 +179,13 @@ public class TicketService {
 			throw new BusinessRuleException("Cannot restore ticket because its project is deleted.");
 		}
 		ticket.setDeletedAt(null);
-		auditLogService.record(AuditAction.RESTORE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.RESTORE,
+			AuditEntityType.TICKET,
+			ticket.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 	}
 
 	private Ticket findTicket(Long ticketId) {

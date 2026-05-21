@@ -620,6 +620,47 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 16 – Authorization and final compliance hardening
+
+Summary of prompt:
+
+- Implement only authorization hardening and final compliance cleanup.
+- Enforce ADMIN-only access for soft-delete list and restore endpoints:
+  - `GET /projects/deleted`
+  - `POST /projects/{projectId}/restore`
+  - `GET /tickets/deleted?projectId={projectId}`
+  - `POST /tickets/{ticketId}/restore`
+- Return consistent JSON `403 Forbidden` responses with a useful message when non-admin users access ADMIN-only endpoints.
+- Add `CurrentUserProvider` so authenticated state-changing requests can record audit `performedBy` from the JWT principal without making controllers responsible for audit details.
+- Apply authenticated `performedBy` attribution to project, ticket, comment update/delete, dependency, attachment, and CSV import/export actions.
+- Preserve request-body author attribution for comment creation.
+- Keep SYSTEM actions unchanged: `AUTO_ASSIGN` and `AUTO_ESCALATE` continue using actor `SYSTEM` and `performedBy = null`.
+- Verify controller mappings cover all README endpoint groups: users, auth, projects, tickets, comments, audit logs, dependencies, attachments, mentions, workload, and CSV import/export.
+- Update `run.md` with Docker PostgreSQL startup, tests, app run, first user creation, login, Bearer token usage in Postman, default password, scheduler interval, and DB-backed attachment storage notes.
+- Add JWT-based integration tests for ADMIN and DEVELOPER access to deleted list/restore endpoints and authenticated audit attribution.
+- Run `./mvnw test` and mark final cleanup implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/config/SecurityConfig.java`
+- `src/main/java/com/att/tdp/issueflow/security/CurrentUserProvider.java`
+- `src/main/java/com/att/tdp/issueflow/security/JsonAccessDeniedHandler.java`
+- `src/main/java/com/att/tdp/issueflow/service/AttachmentService.java`
+- `src/main/java/com/att/tdp/issueflow/service/CommentService.java`
+- `src/main/java/com/att/tdp/issueflow/service/ProjectService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketCsvService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketDependencyService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/AuthorizationHardeningIntegrationTest.java`
+- `src/test/java/com/att/tdp/issueflow/controller/SoftDeleteControllerIntegrationTest.java`
+- `run.md`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

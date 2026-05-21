@@ -8,6 +8,7 @@ import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.AttachmentRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
+import com.att.tdp.issueflow.security.CurrentUserProvider;
 import java.io.IOException;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -28,15 +29,18 @@ public class AttachmentService {
 	private final AttachmentRepository attachmentRepository;
 	private final TicketRepository ticketRepository;
 	private final AuditLogService auditLogService;
+	private final CurrentUserProvider currentUserProvider;
 
 	public AttachmentService(
 		AttachmentRepository attachmentRepository,
 		TicketRepository ticketRepository,
-		AuditLogService auditLogService
+		AuditLogService auditLogService,
+		CurrentUserProvider currentUserProvider
 	) {
 		this.attachmentRepository = attachmentRepository;
 		this.ticketRepository = ticketRepository;
 		this.auditLogService = auditLogService;
+		this.currentUserProvider = currentUserProvider;
 	}
 
 	@Transactional
@@ -56,7 +60,7 @@ public class AttachmentService {
 			AuditAction.UPLOAD_ATTACHMENT,
 			AuditEntityType.ATTACHMENT,
 			savedAttachment.getId(),
-			null,
+			currentUserProvider.currentUserIdOrNull(),
 			AuditActor.USER
 		);
 
@@ -79,7 +83,7 @@ public class AttachmentService {
 			AuditAction.DELETE_ATTACHMENT,
 			AuditEntityType.ATTACHMENT,
 			attachmentId,
-			null,
+			currentUserProvider.currentUserIdOrNull(),
 			AuditActor.USER
 		);
 	}

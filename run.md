@@ -12,13 +12,19 @@
 docker compose up -d
 ```
 
+## Run Tests
+
+```bash
+./mvnw test
+```
+
 ## Build
 
 ```bash
 ./mvnw clean package
 ```
 
-## Run
+## Run the App
 
 ```bash
 ./mvnw spring-boot:run
@@ -50,16 +56,17 @@ Protected requests require:
 Authorization: Bearer <accessToken>
 ```
 
+In Postman, set the request authorization type to `Bearer Token` and paste the `accessToken` value returned by `POST /auth/login`.
+
 ## Auto-Escalation
 
 Overdue tickets are auto-escalated on a configurable schedule using `issueflow.auto-escalation.fixed-delay-ms`.
+The default scheduler interval is `60000` ms.
 The escalation logic is also covered directly by service-level tests through `TicketEscalationService.runEscalationCycle()`.
 
-## Test
+## Attachments
 
-```bash
-./mvnw test
-```
+Attachments are stored in the database as bytes for this assignment. The API currently returns upload metadata and supports deletion; no separate file download endpoint is implemented.
 
 ## Useful troubleshooting notes
 

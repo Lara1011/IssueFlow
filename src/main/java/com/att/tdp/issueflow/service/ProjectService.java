@@ -11,6 +11,7 @@ import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.ProjectRepository;
 import com.att.tdp.issueflow.repository.UserRepository;
+import com.att.tdp.issueflow.security.CurrentUserProvider;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -24,17 +25,20 @@ public class ProjectService {
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
 	private final WorkloadService workloadService;
+	private final CurrentUserProvider currentUserProvider;
 
 	public ProjectService(
 		ProjectRepository projectRepository,
 		UserRepository userRepository,
 		AuditLogService auditLogService,
-		WorkloadService workloadService
+		WorkloadService workloadService,
+		CurrentUserProvider currentUserProvider
 	) {
 		this.projectRepository = projectRepository;
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
 		this.workloadService = workloadService;
+		this.currentUserProvider = currentUserProvider;
 	}
 
 	@Transactional(readOnly = true)
@@ -75,7 +79,13 @@ public class ProjectService {
 		project.setOwnerId(request.ownerId());
 
 		Project savedProject = projectRepository.save(project);
-		auditLogService.record(AuditAction.CREATE, AuditEntityType.PROJECT, savedProject.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.CREATE,
+			AuditEntityType.PROJECT,
+			savedProject.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 		return toResponse(savedProject);
 	}
 
@@ -90,14 +100,26 @@ public class ProjectService {
 		if (request.description() != null) {
 			project.setDescription(request.description());
 		}
-		auditLogService.record(AuditAction.UPDATE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.UPDATE,
+			AuditEntityType.PROJECT,
+			project.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 	}
 
 	@Transactional
 	public void deleteProject(Long projectId) {
 		Project project = findActiveProject(projectId);
 		project.setDeletedAt(Instant.now());
-		auditLogService.record(AuditAction.DELETE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.DELETE,
+			AuditEntityType.PROJECT,
+			project.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 	}
 
 	@Transactional
@@ -107,7 +129,13 @@ public class ProjectService {
 			return;
 		}
 		project.setDeletedAt(null);
-		auditLogService.record(AuditAction.RESTORE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.RESTORE,
+			AuditEntityType.PROJECT,
+			project.getId(),
+			currentUserProvider.currentUserIdOrNull(),
+			AuditActor.USER
+		);
 	}
 
 	private Project findProject(Long projectId) {

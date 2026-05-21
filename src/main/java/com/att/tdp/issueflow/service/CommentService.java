@@ -11,6 +11,7 @@ import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.CommentRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
 import com.att.tdp.issueflow.repository.UserRepository;
+import com.att.tdp.issueflow.security.CurrentUserProvider;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +24,22 @@ public class CommentService {
 	private final UserRepository userRepository;
 	private final MentionService mentionService;
 	private final AuditLogService auditLogService;
+	private final CurrentUserProvider currentUserProvider;
 
 	public CommentService(
 		CommentRepository commentRepository,
 		TicketRepository ticketRepository,
 		UserRepository userRepository,
 		MentionService mentionService,
-		AuditLogService auditLogService
+		AuditLogService auditLogService,
+		CurrentUserProvider currentUserProvider
 	) {
 		this.commentRepository = commentRepository;
 		this.ticketRepository = ticketRepository;
 		this.userRepository = userRepository;
 		this.mentionService = mentionService;
 		this.auditLogService = auditLogService;
+		this.currentUserProvider = currentUserProvider;
 	}
 
 	@Transactional(readOnly = true)
@@ -76,7 +80,7 @@ public class CommentService {
 			AuditAction.UPDATE,
 			AuditEntityType.COMMENT,
 			comment.getId(),
-			comment.getAuthorId(),
+			currentUserProvider.currentUserIdOrNull(),
 			AuditActor.USER
 		);
 	}
@@ -88,7 +92,15 @@ public class CommentService {
 		Long authorId = comment.getAuthorId();
 		mentionService.deleteMentionsForComment(comment.getId());
 		commentRepository.delete(comment);
-		auditLogService.record(AuditAction.DELETE, AuditEntityType.COMMENT, commentId, authorId, AuditActor.USER);
+		auditLogService.record(
+			AuditAction.DELETE,
+			AuditEntityType.COMMENT,
+			commentId,
+			currentUserProvider.currentUser()
+				.map(user -> user.id())
+				.orElse(authorId),
+			AuditActor.USER
+		);
 	}
 
 	private void validateActiveTicket(Long ticketId) {

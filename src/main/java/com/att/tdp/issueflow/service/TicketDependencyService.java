@@ -11,6 +11,7 @@ import com.att.tdp.issueflow.exception.BusinessRuleException;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.TicketDependencyRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
+import com.att.tdp.issueflow.security.CurrentUserProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,15 +25,18 @@ public class TicketDependencyService {
 	private final TicketDependencyRepository ticketDependencyRepository;
 	private final TicketRepository ticketRepository;
 	private final AuditLogService auditLogService;
+	private final CurrentUserProvider currentUserProvider;
 
 	public TicketDependencyService(
 		TicketDependencyRepository ticketDependencyRepository,
 		TicketRepository ticketRepository,
-		AuditLogService auditLogService
+		AuditLogService auditLogService,
+		CurrentUserProvider currentUserProvider
 	) {
 		this.ticketDependencyRepository = ticketDependencyRepository;
 		this.ticketRepository = ticketRepository;
 		this.auditLogService = auditLogService;
+		this.currentUserProvider = currentUserProvider;
 	}
 
 	@Transactional
@@ -90,7 +94,7 @@ public class TicketDependencyService {
 			AuditAction.ADD_DEPENDENCY,
 			AuditEntityType.DEPENDENCY,
 			savedDependency.getId(),
-			null,
+			currentUserProvider.currentUserIdOrNull(),
 			AuditActor.USER
 		);
 	}
@@ -102,7 +106,7 @@ public class TicketDependencyService {
 			AuditAction.REMOVE_DEPENDENCY,
 			AuditEntityType.DEPENDENCY,
 			dependencyId,
-			null,
+			currentUserProvider.currentUserIdOrNull(),
 			AuditActor.USER
 		);
 	}

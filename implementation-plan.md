@@ -92,6 +92,6 @@
 
 ## 16. Final documentation and cleanup
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
