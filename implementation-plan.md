@@ -32,8 +32,8 @@
 
 ## 6. Comments API
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 7. Mentions

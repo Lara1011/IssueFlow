@@ -264,6 +264,44 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 6 – Comments API
+
+Summary of prompt:
+
+- Implement only the Comments API feature from `README.md`.
+- Do not implement Mentions API yet, but include `mentionedUsers` as an empty list in comment responses.
+- Do not implement audit logs, dependencies, attachments, import/export, authentication/JWT, auto-assignment, or auto-escalation.
+- Use the existing `Comment` entity and its `@Version` field for optimistic locking.
+- Use DTOs rather than exposing JPA entities from controllers.
+- Add endpoints under `/tickets/{ticketId}/comments` for list, create, update, and delete.
+- Validate comment creation with required `authorId` and non-blank `content`.
+- Validate comment update with required non-blank `content`.
+- Verify the target ticket exists and is not soft-deleted.
+- Verify the author exists when adding a comment.
+- Verify comments exist and belong to the `ticketId` in the URL before update/delete.
+- Hard delete comments.
+- Return informative errors for missing tickets, missing authors, missing comments, comments attached to a different ticket, and invalid content.
+- Use the existing optimistic-locking exception handling for comment edit conflicts.
+- Add MockMvc integration tests for create, list, update, delete, validation, not-found cases, wrong-ticket cases, and empty `mentionedUsers`.
+- Add repository-level optimistic locking coverage for stale comment updates.
+- Run `./mvnw test` and mark Comments API implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/CommentController.java`
+- `src/main/java/com/att/tdp/issueflow/dto/CreateCommentRequest.java`
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateCommentRequest.java`
+- `src/main/java/com/att/tdp/issueflow/repository/CommentRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/CommentService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/CommentControllerIntegrationTest.java`
+- `src/test/java/com/att/tdp/issueflow/repository/CommentOptimisticLockingIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:
