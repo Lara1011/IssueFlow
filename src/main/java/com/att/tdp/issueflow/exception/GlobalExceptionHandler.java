@@ -1,15 +1,18 @@
 package com.att.tdp.issueflow.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -60,7 +63,20 @@ public class GlobalExceptionHandler {
 		BusinessRuleException exception,
 		HttpServletRequest request
 	) {
-		return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request, Map.of());
+		return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of());
+	}
+
+	@ExceptionHandler({
+		ObjectOptimisticLockingFailureException.class,
+		OptimisticLockingFailureException.class,
+		OptimisticLockException.class
+	})
+	public ResponseEntity<ApiErrorResponse> handleOptimisticLockingFailure(
+		Exception exception,
+		HttpServletRequest request
+	) {
+		String message = "Ticket was updated by another request. Please reload and try again.";
+		return buildResponse(HttpStatus.CONFLICT, message, request, Map.of());
 	}
 
 	@ExceptionHandler(Exception.class)

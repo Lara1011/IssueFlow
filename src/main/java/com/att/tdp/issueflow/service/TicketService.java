@@ -122,7 +122,7 @@ public class TicketService {
 
 	private void validateTicketCanBeUpdated(Ticket ticket) {
 		if (ticket.getStatus() == TicketStatus.DONE) {
-			throw new BusinessRuleException("Ticket cannot be updated because it is already DONE");
+			throw new BusinessRuleException("Ticket cannot be updated because it is already DONE.");
 		}
 	}
 
@@ -130,19 +130,21 @@ public class TicketService {
 		if (requestedStatus == null || requestedStatus == currentStatus) {
 			return;
 		}
-		if (lifecyclePosition(requestedStatus) < lifecyclePosition(currentStatus)) {
+		TicketStatus allowedNextStatus = allowedNextStatus(currentStatus);
+		if (requestedStatus != allowedNextStatus) {
 			throw new BusinessRuleException(
-				"Invalid status transition: " + currentStatus + " cannot move back to " + requestedStatus
+				"Invalid ticket status transition from " + currentStatus + " to " + requestedStatus
+					+ ". Allowed next status is " + allowedNextStatus + "."
 			);
 		}
 	}
 
-	private int lifecyclePosition(TicketStatus status) {
+	private TicketStatus allowedNextStatus(TicketStatus status) {
 		return switch (status) {
-			case TODO -> 0;
-			case IN_PROGRESS -> 1;
-			case IN_REVIEW -> 2;
-			case DONE -> 3;
+			case TODO -> TicketStatus.IN_PROGRESS;
+			case IN_PROGRESS -> TicketStatus.IN_REVIEW;
+			case IN_REVIEW -> TicketStatus.DONE;
+			case DONE -> throw new BusinessRuleException("Ticket cannot be updated because it is already DONE.");
 		};
 	}
 

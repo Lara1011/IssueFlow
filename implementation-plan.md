@@ -26,11 +26,9 @@
 
 ## 5. Ticket lifecycle rules and optimistic locking
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
-
-Note: Update lifecycle rules and informative lifecycle error messages are covered by Prompt 4.1. Optimistic locking behavior still needs to be implemented/tested before this feature is complete.
 
 ## 6. Comments API
 

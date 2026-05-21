@@ -207,6 +207,63 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 5 – Ticket lifecycle rules and optimistic locking
+
+Summary of prompt:
+
+- Implement only ticket lifecycle rules and concurrency protection.
+- Keep comments, dependencies, attachments, import/export, authentication/JWT, auto-assignment, and auto-escalation out of scope.
+- Enforce strict step-by-step lifecycle movement for ticket updates: `TODO -> IN_PROGRESS -> IN_REVIEW -> DONE`.
+- Allow same-status updates only when the ticket is not `DONE`.
+- Reject skipped transitions such as `TODO -> IN_REVIEW`, `TODO -> DONE`, and `IN_PROGRESS -> DONE`.
+- Reject backward transitions such as `IN_PROGRESS -> TODO`, `IN_REVIEW -> TODO`, and `IN_REVIEW -> IN_PROGRESS`.
+- Reject every update to an existing `DONE` ticket, including `DONE -> DONE`.
+- Return lifecycle business-rule failures as `400 Bad Request` with one clear main message.
+- Include both current and requested statuses in invalid transition messages, plus the allowed next status.
+- Keep `projectId` and `type` ignored for ticket update requests.
+- Keep `dueDate` ignored for ticket update requests until the later auto-escalation feature.
+- Use the existing `@Version` field on `Ticket` for JPA optimistic locking.
+- Map optimistic locking failures to `409 Conflict` with an informative reload-and-retry message.
+- Add integration tests for successful transitions, invalid transitions, DONE lock cases, ignored fields including `dueDate`, `@Version`, stale entity updates, and optimistic-locking error mapping.
+- Run `./mvnw test` and mark Ticket lifecycle rules and optimistic locking complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateTicketRequest.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketControllerIntegrationTest.java`
+- `src/test/java/com/att/tdp/issueflow/exception/GlobalExceptionHandlerTest.java`
+- `src/test/java/com/att/tdp/issueflow/repository/TicketOptimisticLockingIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
+## Prompt 5.1 – Ticket PATCH field contract correction
+
+Summary of prompt:
+
+- Correct `PATCH /tickets/{ticketId}` so it may update only `title`, `description`, `status`, `priority`, and `assigneeId`.
+- Ensure `projectId`, `type`, and `dueDate` do not change through the ticket update endpoint.
+- Keep `dueDate` supported for ticket creation and responses, but not for updates yet.
+- Keep lifecycle and optimistic locking behavior unchanged.
+- Update tests so a PATCH body containing `dueDate` is accepted as ignored JSON and leaves the stored due date unchanged.
+- Run `./mvnw test`.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateTicketRequest.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketControllerIntegrationTest.java`
+- `prompts.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:
