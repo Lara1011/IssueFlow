@@ -14,9 +14,9 @@
 
 ## 3. Projects API
 
-- [ ] Implementation
-- [ ] Tests
-- [ ] Manual verification
+- [x] Implementation
+- [x] Tests
+- [x] Manual verification
 
 ## 4. Tickets API basic CRUD
 

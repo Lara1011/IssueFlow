@@ -106,6 +106,34 @@ Relevant files created or updated from this prompt:
 - `src/test/java/com/att/tdp/issueflow/controller/UserControllerIntegrationTest.java`
 - `prompts.md`
 
+## Prompt 3 – Projects API
+
+Summary of prompt:
+
+- Implement only the Projects API feature from `README.md`.
+- Do not implement tickets, comments, authentication/JWT, restore endpoints, or other advanced features.
+- Use DTOs and keep JPA entities out of controller responses.
+- Keep `ProjectController` thin and place business logic in `ProjectService`.
+- Validate project creation with required non-blank `name` and required `ownerId`.
+- Validate project update so at least one of `name` or `description` is provided, and a provided `name` is not blank.
+- Verify `ownerId` refers to an existing user when creating a project.
+- Return clear 404-style JSON errors for missing owners, missing projects, and soft-deleted projects.
+- Implement project deletion as soft delete by setting `deletedAt`.
+- Keep standard project GET endpoints limited to non-deleted projects.
+- Do not implement `/projects/deleted` or `/projects/{id}/restore` yet.
+- Add MockMvc integration tests for create, owner not found, list filtering, get by ID, update, soft delete, hidden deleted records, and validation errors.
+- Run `./mvnw test` and mark Projects API complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/ProjectController.java`
+- `src/main/java/com/att/tdp/issueflow/dto/CreateProjectRequest.java`
+- `src/main/java/com/att/tdp/issueflow/repository/ProjectRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/ProjectService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/ProjectControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
 ## Future prompts
 
 Add each future feature prompt here with:

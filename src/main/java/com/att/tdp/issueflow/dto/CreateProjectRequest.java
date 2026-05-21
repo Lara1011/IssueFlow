@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateProjectRequest(
-	@NotBlank String name,
+	@NotBlank(message = "name is required") String name,
 	String description,
-	@NotNull Long ownerId
+	@NotNull(message = "ownerId is required") Long ownerId
 ) {
 }
