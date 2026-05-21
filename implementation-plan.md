@@ -74,8 +74,8 @@
 
 ## 13. Authentication/JWT
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 14. Auto-assignment

@@ -505,6 +505,48 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 13 – Authentication/JWT API
+
+Summary of prompt:
+
+- Implement only Authentication/JWT.
+- Add Spring Security and protect all endpoints except `POST /auth/login` and public `POST /users` for initial user creation/testing.
+- Add `POST /auth/login`, `POST /auth/logout`, and `GET /auth/me`.
+- Generate signed HMAC-SHA256 JWT access tokens with configurable secret and 3600-second default expiration.
+- Validate bearer tokens with a JWT filter and return consistent JSON `401` errors for missing, invalid, expired, and logged-out tokens.
+- Add in-memory token deny-list logout invalidation.
+- Add password hashing with `PasswordEncoder`.
+- Keep the existing `POST /users` request contract unchanged and default created users to password `secret`.
+- Do not include passwords in response DTOs.
+- Record audit logs for successful `LOGIN` and `LOGOUT`.
+- Update existing controller tests to run with mock authenticated users where they are not testing JWT behavior.
+- Add authentication integration tests for registration, login success/failure, protected endpoints, current user profile, logout invalidation, and audit logs.
+- Update `run.md` with manual authentication steps.
+- Run `./mvnw test` and mark Authentication/JWT implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `pom.xml`
+- `src/main/java/com/att/tdp/issueflow/config/SecurityConfig.java`
+- `src/main/java/com/att/tdp/issueflow/controller/AuthController.java`
+- `src/main/java/com/att/tdp/issueflow/exception/AuthenticationFailedException.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/repository/UserRepository.java`
+- `src/main/java/com/att/tdp/issueflow/security`
+- `src/main/java/com/att/tdp/issueflow/service/AuthService.java`
+- `src/main/java/com/att/tdp/issueflow/service/UserService.java`
+- `src/main/resources/application.yaml`
+- `src/test/resources/application.yaml`
+- `src/test/java/com/att/tdp/issueflow/controller/AuthControllerIntegrationTest.java`
+- Existing controller integration tests
+- `run.md`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

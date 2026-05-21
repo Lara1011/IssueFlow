@@ -10,18 +10,27 @@ import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.UserRepository;
 import java.util.List;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
 
+	private static final String DEFAULT_PASSWORD = "secret";
+
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
+	private final PasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository, AuditLogService auditLogService) {
+	public UserService(
+		UserRepository userRepository,
+		AuditLogService auditLogService,
+		PasswordEncoder passwordEncoder
+	) {
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Transactional(readOnly = true)
@@ -51,6 +60,7 @@ public class UserService {
 		user.setEmail(request.email());
 		user.setFullName(request.fullName());
 		user.setRole(request.role());
+		user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
 
 		User savedUser = userRepository.save(user);
 		auditLogService.record(AuditAction.CREATE, AuditEntityType.USER, savedUser.getId(), null, AuditActor.USER);
