@@ -337,6 +337,42 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 8 – Audit Log API
+
+Summary of prompt:
+
+- Implement only Audit Log functionality.
+- Add `GET /audit-logs` with optional filters for `entityType`, `entityId`, `action`, and `actor`.
+- Return audit logs as DTOs sorted by `timestamp` descending, then `id` descending.
+- Keep audit logs append-only with no update or delete endpoint.
+- Add reusable `AuditLogService.record(...)`.
+- Record audit logs for existing state-changing actions in Users, Projects, Tickets, and Comments.
+- Use `AuditActor.USER` for existing state-changing actions.
+- Use `performedBy = authorId` for comment create, update, and delete; use `null` for users/projects/tickets until authentication exists.
+- Add informative `400` handling for invalid enum query parameter filters.
+- Keep existing API response shapes unchanged.
+- Do not implement dependencies, attachments, import/export, authentication/JWT, auto-assignment, or auto-escalation.
+- Add integration tests for audit recording, retrieval sorting, filters, invalid enum filters, and existing test regression.
+- Run `./mvnw test` and mark Audit Log implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/AuditLogController.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/repository/AuditLogRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/AuditLogService.java`
+- `src/main/java/com/att/tdp/issueflow/service/UserService.java`
+- `src/main/java/com/att/tdp/issueflow/service/ProjectService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/main/java/com/att/tdp/issueflow/service/CommentService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/AuditLogControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

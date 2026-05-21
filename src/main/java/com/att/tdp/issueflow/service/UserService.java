@@ -4,6 +4,9 @@ import com.att.tdp.issueflow.dto.CreateUserRequest;
 import com.att.tdp.issueflow.dto.UpdateUserRequest;
 import com.att.tdp.issueflow.dto.UserResponse;
 import com.att.tdp.issueflow.entity.User;
+import com.att.tdp.issueflow.enums.AuditAction;
+import com.att.tdp.issueflow.enums.AuditActor;
+import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.UserRepository;
 import java.util.List;
@@ -14,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final AuditLogService auditLogService;
 
-	public UserService(UserRepository userRepository) {
+	public UserService(UserRepository userRepository, AuditLogService auditLogService) {
 		this.userRepository = userRepository;
+		this.auditLogService = auditLogService;
 	}
 
 	@Transactional(readOnly = true)
@@ -47,7 +52,9 @@ public class UserService {
 		user.setFullName(request.fullName());
 		user.setRole(request.role());
 
-		return toResponse(userRepository.save(user));
+		User savedUser = userRepository.save(user);
+		auditLogService.record(AuditAction.CREATE, AuditEntityType.USER, savedUser.getId(), null, AuditActor.USER);
+		return toResponse(savedUser);
 	}
 
 	@Transactional
@@ -55,12 +62,14 @@ public class UserService {
 		User user = findUser(userId);
 		user.setFullName(request.fullName());
 		user.setRole(request.role());
+		auditLogService.record(AuditAction.UPDATE, AuditEntityType.USER, user.getId(), null, AuditActor.USER);
 	}
 
 	@Transactional
 	public void deleteUser(Long userId) {
 		User user = findUser(userId);
 		userRepository.delete(user);
+		auditLogService.record(AuditAction.DELETE, AuditEntityType.USER, userId, null, AuditActor.USER);
 	}
 
 	private User findUser(Long userId) {

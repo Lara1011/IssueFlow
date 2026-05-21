@@ -4,6 +4,9 @@ import com.att.tdp.issueflow.dto.CreateTicketRequest;
 import com.att.tdp.issueflow.dto.TicketResponse;
 import com.att.tdp.issueflow.dto.UpdateTicketRequest;
 import com.att.tdp.issueflow.entity.Ticket;
+import com.att.tdp.issueflow.enums.AuditAction;
+import com.att.tdp.issueflow.enums.AuditActor;
+import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.enums.TicketStatus;
 import com.att.tdp.issueflow.exception.BusinessRuleException;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
@@ -22,15 +25,18 @@ public class TicketService {
 	private final TicketRepository ticketRepository;
 	private final ProjectRepository projectRepository;
 	private final UserRepository userRepository;
+	private final AuditLogService auditLogService;
 
 	public TicketService(
 		TicketRepository ticketRepository,
 		ProjectRepository projectRepository,
-		UserRepository userRepository
+		UserRepository userRepository,
+		AuditLogService auditLogService
 	) {
 		this.ticketRepository = ticketRepository;
 		this.projectRepository = projectRepository;
 		this.userRepository = userRepository;
+		this.auditLogService = auditLogService;
 	}
 
 	@Transactional(readOnly = true)
@@ -62,7 +68,9 @@ public class TicketService {
 		ticket.setAssigneeId(request.assigneeId());
 		ticket.setDueDate(request.dueDate());
 
-		return toResponse(ticketRepository.save(ticket));
+		Ticket savedTicket = ticketRepository.save(ticket);
+		auditLogService.record(AuditAction.CREATE, AuditEntityType.TICKET, savedTicket.getId(), null, AuditActor.USER);
+		return toResponse(savedTicket);
 	}
 
 	@Transactional
@@ -89,12 +97,14 @@ public class TicketService {
 		if (request.assigneeId() != null) {
 			ticket.setAssigneeId(request.assigneeId());
 		}
+		auditLogService.record(AuditAction.UPDATE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
 	}
 
 	@Transactional
 	public void deleteTicket(Long ticketId) {
 		Ticket ticket = findActiveTicket(ticketId);
 		ticket.setDeletedAt(Instant.now());
+		auditLogService.record(AuditAction.DELETE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
 	}
 
 	private Ticket findActiveTicket(Long ticketId) {

@@ -44,8 +44,8 @@
 
 ## 8. Audit logs
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 9. Soft delete and restore

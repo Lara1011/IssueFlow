@@ -16,6 +16,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -56,6 +57,15 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request
 	) {
 		return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of());
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
+		MethodArgumentTypeMismatchException exception,
+		HttpServletRequest request
+	) {
+		String message = resolveTypeMismatchMessage(exception);
+		return buildResponse(HttpStatus.BAD_REQUEST, message, request, Map.of());
 	}
 
 	@ExceptionHandler(BusinessRuleException.class)
@@ -123,6 +133,14 @@ public class GlobalExceptionHandler {
 		}
 
 		return "Request body is invalid";
+	}
+
+	private String resolveTypeMismatchMessage(MethodArgumentTypeMismatchException exception) {
+		Class<?> requiredType = exception.getRequiredType();
+		if (requiredType != null && requiredType.isEnum()) {
+			return exception.getName() + " must be one of: " + acceptedEnumValues(requiredType);
+		}
+		return exception.getName() + " is invalid";
 	}
 
 	@SuppressWarnings("unchecked")

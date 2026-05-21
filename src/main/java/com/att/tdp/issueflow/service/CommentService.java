@@ -4,6 +4,9 @@ import com.att.tdp.issueflow.dto.CommentResponse;
 import com.att.tdp.issueflow.dto.CreateCommentRequest;
 import com.att.tdp.issueflow.dto.UpdateCommentRequest;
 import com.att.tdp.issueflow.entity.Comment;
+import com.att.tdp.issueflow.enums.AuditAction;
+import com.att.tdp.issueflow.enums.AuditActor;
+import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.CommentRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
@@ -19,17 +22,20 @@ public class CommentService {
 	private final TicketRepository ticketRepository;
 	private final UserRepository userRepository;
 	private final MentionService mentionService;
+	private final AuditLogService auditLogService;
 
 	public CommentService(
 		CommentRepository commentRepository,
 		TicketRepository ticketRepository,
 		UserRepository userRepository,
-		MentionService mentionService
+		MentionService mentionService,
+		AuditLogService auditLogService
 	) {
 		this.commentRepository = commentRepository;
 		this.ticketRepository = ticketRepository;
 		this.userRepository = userRepository;
 		this.mentionService = mentionService;
+		this.auditLogService = auditLogService;
 	}
 
 	@Transactional(readOnly = true)
@@ -50,6 +56,13 @@ public class CommentService {
 
 		Comment savedComment = commentRepository.save(comment);
 		mentionService.syncMentionsForComment(savedComment);
+		auditLogService.record(
+			AuditAction.CREATE,
+			AuditEntityType.COMMENT,
+			savedComment.getId(),
+			savedComment.getAuthorId(),
+			AuditActor.USER
+		);
 		return mentionService.toCommentResponse(savedComment);
 	}
 
@@ -59,14 +72,23 @@ public class CommentService {
 		Comment comment = findCommentForTicket(ticketId, commentId);
 		comment.setContent(request.content());
 		mentionService.syncMentionsForComment(comment);
+		auditLogService.record(
+			AuditAction.UPDATE,
+			AuditEntityType.COMMENT,
+			comment.getId(),
+			comment.getAuthorId(),
+			AuditActor.USER
+		);
 	}
 
 	@Transactional
 	public void deleteComment(Long ticketId, Long commentId) {
 		validateActiveTicket(ticketId);
 		Comment comment = findCommentForTicket(ticketId, commentId);
+		Long authorId = comment.getAuthorId();
 		mentionService.deleteMentionsForComment(comment.getId());
 		commentRepository.delete(comment);
+		auditLogService.record(AuditAction.DELETE, AuditEntityType.COMMENT, commentId, authorId, AuditActor.USER);
 	}
 
 	private void validateActiveTicket(Long ticketId) {

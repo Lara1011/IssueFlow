@@ -4,6 +4,9 @@ import com.att.tdp.issueflow.dto.CreateProjectRequest;
 import com.att.tdp.issueflow.dto.ProjectResponse;
 import com.att.tdp.issueflow.dto.UpdateProjectRequest;
 import com.att.tdp.issueflow.entity.Project;
+import com.att.tdp.issueflow.enums.AuditAction;
+import com.att.tdp.issueflow.enums.AuditActor;
+import com.att.tdp.issueflow.enums.AuditEntityType;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.ProjectRepository;
 import com.att.tdp.issueflow.repository.UserRepository;
@@ -18,10 +21,16 @@ public class ProjectService {
 
 	private final ProjectRepository projectRepository;
 	private final UserRepository userRepository;
+	private final AuditLogService auditLogService;
 
-	public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
+	public ProjectService(
+		ProjectRepository projectRepository,
+		UserRepository userRepository,
+		AuditLogService auditLogService
+	) {
 		this.projectRepository = projectRepository;
 		this.userRepository = userRepository;
+		this.auditLogService = auditLogService;
 	}
 
 	@Transactional(readOnly = true)
@@ -48,7 +57,9 @@ public class ProjectService {
 		project.setDescription(request.description());
 		project.setOwnerId(request.ownerId());
 
-		return toResponse(projectRepository.save(project));
+		Project savedProject = projectRepository.save(project);
+		auditLogService.record(AuditAction.CREATE, AuditEntityType.PROJECT, savedProject.getId(), null, AuditActor.USER);
+		return toResponse(savedProject);
 	}
 
 	@Transactional
@@ -62,12 +73,14 @@ public class ProjectService {
 		if (request.description() != null) {
 			project.setDescription(request.description());
 		}
+		auditLogService.record(AuditAction.UPDATE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
 	}
 
 	@Transactional
 	public void deleteProject(Long projectId) {
 		Project project = findActiveProject(projectId);
 		project.setDeletedAt(Instant.now());
+		auditLogService.record(AuditAction.DELETE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
 	}
 
 	private Project findActiveProject(Long projectId) {
