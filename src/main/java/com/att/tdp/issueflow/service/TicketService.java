@@ -11,6 +11,7 @@ import com.att.tdp.issueflow.enums.TicketStatus;
 import com.att.tdp.issueflow.exception.BusinessRuleException;
 import com.att.tdp.issueflow.exception.ResourceNotFoundException;
 import com.att.tdp.issueflow.repository.ProjectRepository;
+import com.att.tdp.issueflow.repository.TicketDependencyRepository;
 import com.att.tdp.issueflow.repository.TicketRepository;
 import com.att.tdp.issueflow.repository.UserRepository;
 import java.time.Instant;
@@ -24,17 +25,20 @@ public class TicketService {
 
 	private final TicketRepository ticketRepository;
 	private final ProjectRepository projectRepository;
+	private final TicketDependencyRepository ticketDependencyRepository;
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
 
 	public TicketService(
 		TicketRepository ticketRepository,
 		ProjectRepository projectRepository,
+		TicketDependencyRepository ticketDependencyRepository,
 		UserRepository userRepository,
 		AuditLogService auditLogService
 	) {
 		this.ticketRepository = ticketRepository;
 		this.projectRepository = projectRepository;
+		this.ticketDependencyRepository = ticketDependencyRepository;
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
 	}
@@ -89,6 +93,7 @@ public class TicketService {
 		Ticket ticket = findActiveTicket(ticketId);
 		validateTicketCanBeUpdated(ticket);
 		validateStatusTransition(ticket.getStatus(), request.status());
+		validateBlockersResolvedForDoneTransition(ticket, request.status());
 		validateAssigneeIfPresent(request.assigneeId());
 
 		if (request.title() != null) {
@@ -185,6 +190,13 @@ public class TicketService {
 				"Invalid ticket status transition from " + currentStatus + " to " + requestedStatus
 					+ ". Allowed next status is " + allowedNextStatus + "."
 			);
+		}
+	}
+
+	private void validateBlockersResolvedForDoneTransition(Ticket ticket, TicketStatus requestedStatus) {
+		if (requestedStatus == TicketStatus.DONE
+			&& ticketDependencyRepository.hasUnresolvedBlockers(ticket.getId(), TicketStatus.DONE)) {
+			throw new BusinessRuleException("Ticket cannot be marked DONE because it has unresolved blockers.");
 		}
 	}
 

@@ -408,6 +408,40 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 10 – Ticket Dependencies API
+
+Summary of prompt:
+
+- Implement only Ticket Dependencies API.
+- Add `POST /tickets/{ticketId}/dependencies`, `GET /tickets/{ticketId}/dependencies`, and `DELETE /tickets/{ticketId}/dependencies/{blockerId}`.
+- Use existing `TicketDependency` entity and dependency DTOs.
+- Validate required `blockedBy` in add dependency requests.
+- Verify both tickets exist, are not soft-deleted, and belong to the same project.
+- Reject self-dependencies and cross-project dependencies with informative errors.
+- Make duplicate add and missing remove operations idempotent.
+- List blocker tickets using response shape `{ id, title, status }`, excluding soft-deleted blockers.
+- Record audit logs for `ADD_DEPENDENCY` and `REMOVE_DEPENDENCY`.
+- Enforce the DONE blocker rule in `TicketService`: a ticket cannot move to `DONE` while any non-deleted blocker is not `DONE`.
+- Keep existing strict lifecycle behavior unchanged.
+- Do not implement attachments, import/export, authentication/JWT, auto-assignment, or auto-escalation.
+- Add integration tests for dependency CRUD, validation, same-project checks, self-dependency, duplicate handling, soft-deleted blockers, audit logs, and DONE transition blocking.
+- Run `./mvnw test` and mark Ticket Dependencies implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/TicketDependencyController.java`
+- `src/main/java/com/att/tdp/issueflow/dto/AddDependencyRequest.java`
+- `src/main/java/com/att/tdp/issueflow/repository/TicketDependencyRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketDependencyService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketDependencyControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

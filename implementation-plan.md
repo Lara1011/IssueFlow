@@ -56,8 +56,8 @@
 
 ## 10. Ticket dependencies
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 11. Attachments
