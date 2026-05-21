@@ -8,6 +8,26 @@ Setup, run, and validation notes for the IssueFlow Spring Boot backend.
 - Maven wrapper included in this repository (`./mvnw`); a separate Maven install is optional
 - Docker and Docker Compose
 
+## Quick Start
+
+Recommended terminal command order:
+
+```bash
+docker compose up -d
+./mvnw test
+./mvnw clean package
+./mvnw spring-boot:run
+```
+
+## Dependency Installation
+
+No separate backend dependency installation step is required. The Maven wrapper downloads Java dependencies automatically when running:
+
+```bash
+./mvnw test
+./mvnw clean package
+```
+
 ## Start PostgreSQL with Docker Compose
 
 ```bash
@@ -32,7 +52,9 @@ docker compose up -d
 ./mvnw spring-boot:run
 ```
 
-After packaging, the app can also be run with:
+## Run Packaged Jar
+
+After packaging, the app can be run with:
 
 ```bash
 java -jar target/issueflow-*.jar
@@ -45,7 +67,7 @@ Create an initial user:
 ```bash
 curl -X POST http://localhost:8080/users \
   -H "Content-Type: application/json" \
-  -d '{"username":"lara","email":"laraabuhamad@gmail.com","fullName":"Lara Abuhamad","role":"DEVELOPER"}'
+  -d '{"username":"admin","email":"admin@example.com","fullName":"Admin User","role":"ADMIN"}'
 ```
 
 Users created through `POST /users` use the default password `secret`.
@@ -55,7 +77,7 @@ Login and use the returned bearer token:
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"lara","password":"secret"}'
+  -d '{"username":"admin","password":"secret"}'
 ```
 
 Protected requests require:
@@ -64,9 +86,31 @@ Protected requests require:
 Authorization: Bearer <accessToken>
 ```
 
-In Postman, set the request authorization type to `Bearer Token` and paste the `accessToken` value returned by `POST /auth/login`.
+Postman can optionally be used for manual API testing, but all required setup, build, test, and validation steps can be run from the terminal.
 
 Logout uses an in-memory token deny-list. Logged-out tokens are rejected while the app is running, but the deny-list resets when the app restarts; JWT expiration still applies.
+
+## Optional UI for Manual Testing
+
+The backend can be fully built, tested, and run from this repository without the UI. An optional Vite/React UI was created only as a manual testing and demo helper in a separate repository: `https://github.com/Lara1011/IssueFlow-UI.git`.
+
+To use it, first start the backend:
+
+```bash
+docker compose up -d
+./mvnw spring-boot:run
+```
+
+Then run the UI from its separate folder or clone:
+
+```bash
+git clone https://github.com/Lara1011/IssueFlow-UI.git
+cd IssueFlow-UI
+npm install
+npm run dev
+```
+
+By default, the UI uses Vite's `/api` proxy to reach `http://localhost:8080`. It can also use `VITE_API_BASE_URL` if configured separately.
 
 ## Authorization
 
@@ -83,12 +127,6 @@ Overdue tickets are auto-escalated on a configurable schedule using `issueflow.a
 The scheduler starts after `issueflow.auto-escalation.initial-delay-ms`, which defaults to `10000` ms, and then runs every `60000` ms by default.
 When manually testing auto-escalation, wait at least one full scheduler interval after creating overdue tickets.
 The escalation logic is also covered directly by service-level tests through `TicketEscalationService.runEscalationCycle()`.
-
-The HTTP contract scheduler check can be run with:
-
-```bash
-python3 scripts/http_contract_check.py --include-scheduler --scheduler-wait-seconds 90
-```
 
 If an old local Docker database has schema issues after model changes, reset the local database:
 
@@ -112,10 +150,9 @@ The PostgreSQL credentials and JWT secret in `application.yaml` are local develo
 ```bash
 ./mvnw test
 ./mvnw clean package
-python3 scripts/http_contract_check.py --include-scheduler --scheduler-wait-seconds 90
 ```
 
-Expected result: Maven tests pass, the package build succeeds, and the HTTP contract check reports `Failed: 0`.
+Expected result: Maven tests pass and the package build succeeds.
 
 ## Useful troubleshooting notes
 
