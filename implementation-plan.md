@@ -68,8 +68,8 @@
 
 ## 12. CSV export/import
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 13. Authentication/JWT

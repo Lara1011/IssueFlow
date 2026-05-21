@@ -474,6 +474,37 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 12 – Ticket Export/Import API
+
+Summary of prompt:
+
+- Implement only CSV ticket export/import.
+- Add `GET /tickets/export?projectId={id}` returning a `text/csv` attachment named `tickets-project-{projectId}.csv`.
+- Export only non-deleted tickets for an active project with header `id,title,description,status,priority,type,assigneeId`.
+- Use Apache Commons CSV so commas, quotes, and newlines inside fields are handled correctly.
+- Add `POST /tickets/import` accepting multipart `file` and form field `projectId`.
+- Verify the target project exists and is not soft-deleted before export/import.
+- Parse import CSV rows with columns `title`, `description`, `status`, `priority`, `type`, and `assigneeId`, ignoring any uploaded `id` column.
+- Create imported tickets under the multipart `projectId`; do not trigger auto-assignment, authentication, or auto-escalation.
+- Continue processing after row failures and return `{ created, failed, errors }` with row-level messages.
+- Validate title, ticket enums, and optional assignee IDs for imported rows.
+- Record audit logs for `EXPORT` and `IMPORT` with entity type `TICKET` and entity id equal to the project id.
+- Add MockMvc integration tests for export content, CSV escaping, non-deleted filtering, import success, row failures, enum validation, invalid assignees, missing projects/files, audit logs, and existing test regression.
+- Run `./mvnw test` and mark Export/Import implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/TicketCsvController.java`
+- `src/main/java/com/att/tdp/issueflow/repository/TicketRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketCsvService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketCsvControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:
