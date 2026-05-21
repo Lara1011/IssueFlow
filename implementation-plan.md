@@ -50,8 +50,8 @@
 
 ## 9. Soft delete and restore
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 10. Ticket dependencies

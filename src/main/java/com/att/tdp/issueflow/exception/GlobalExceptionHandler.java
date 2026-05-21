@@ -16,6 +16,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
@@ -65,6 +66,15 @@ public class GlobalExceptionHandler {
 		HttpServletRequest request
 	) {
 		String message = resolveTypeMismatchMessage(exception);
+		return buildResponse(HttpStatus.BAD_REQUEST, message, request, Map.of());
+	}
+
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<ApiErrorResponse> handleMissingRequestParameter(
+		MissingServletRequestParameterException exception,
+		HttpServletRequest request
+	) {
+		String message = exception.getParameterName() + " is required";
 		return buildResponse(HttpStatus.BAD_REQUEST, message, request, Map.of());
 	}
 

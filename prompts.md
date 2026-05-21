@@ -373,6 +373,41 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 9 – Soft Delete API
+
+Summary of prompt:
+
+- Implement only Soft Delete API endpoints for projects and tickets.
+- Add `GET /projects/deleted` and `POST /projects/{projectId}/restore`.
+- Add `GET /tickets/deleted?projectId={projectId}` and `POST /tickets/{ticketId}/restore`.
+- Use existing `deletedAt` soft-delete fields.
+- Keep standard project and ticket GET endpoints hiding soft-deleted records.
+- Return deleted records sorted by `deletedAt` descending, then `id` descending.
+- Make restore idempotent for non-deleted projects and tickets.
+- Reject ticket restore when the ticket's project is soft-deleted with an informative `400`.
+- Record audit logs for `RESTORE PROJECT` and `RESTORE TICKET`.
+- Add informative `400` handling for missing required request parameters.
+- Do not implement dependencies, attachments, import/export, authentication/JWT, auto-assignment, or auto-escalation.
+- Add integration tests for deleted lists, restores, idempotent restores, standard hidden behavior, project-deleted ticket restore rejection, audit logging, and existing test regression.
+- Run `./mvnw test` and mark Soft Delete implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/ProjectController.java`
+- `src/main/java/com/att/tdp/issueflow/controller/TicketController.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/repository/ProjectRepository.java`
+- `src/main/java/com/att/tdp/issueflow/repository/TicketRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/ProjectService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/SoftDeleteControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

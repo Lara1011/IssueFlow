@@ -53,6 +53,15 @@ public class TicketService {
 		return toResponse(findActiveTicket(ticketId));
 	}
 
+	@Transactional(readOnly = true)
+	public List<TicketResponse> getDeletedTicketsByProject(Long projectId) {
+		validateProjectExists(projectId);
+		return ticketRepository.findAllByProjectIdAndDeletedAtIsNotNullOrderByDeletedAtDescIdDesc(projectId)
+			.stream()
+			.map(this::toResponse)
+			.toList();
+	}
+
 	@Transactional
 	public TicketResponse createTicket(CreateTicketRequest request) {
 		validateActiveProject(request.projectId());
@@ -107,9 +116,39 @@ public class TicketService {
 		auditLogService.record(AuditAction.DELETE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
 	}
 
+	@Transactional
+	public void restoreTicket(Long ticketId) {
+		Ticket ticket = findTicket(ticketId);
+		if (ticket.getDeletedAt() == null) {
+			return;
+		}
+		if (projectIsDeleted(ticket.getProjectId())) {
+			throw new BusinessRuleException("Cannot restore ticket because its project is deleted.");
+		}
+		ticket.setDeletedAt(null);
+		auditLogService.record(AuditAction.RESTORE, AuditEntityType.TICKET, ticket.getId(), null, AuditActor.USER);
+	}
+
+	private Ticket findTicket(Long ticketId) {
+		return ticketRepository.findById(ticketId)
+			.orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + ticketId));
+	}
+
 	private Ticket findActiveTicket(Long ticketId) {
 		return ticketRepository.findByIdAndDeletedAtIsNull(ticketId)
 			.orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + ticketId));
+	}
+
+	private void validateProjectExists(Long projectId) {
+		if (projectId == null || !projectRepository.existsById(projectId)) {
+			throw new ResourceNotFoundException("Project not found: " + projectId);
+		}
+	}
+
+	private boolean projectIsDeleted(Long projectId) {
+		return projectRepository.findById(projectId)
+			.map(project -> project.getDeletedAt() != null)
+			.orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
 	}
 
 	private void validateActiveProject(Long projectId) {

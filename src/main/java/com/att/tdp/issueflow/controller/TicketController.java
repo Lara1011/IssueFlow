@@ -31,6 +31,11 @@ public class TicketController {
 		return ticketService.getTicketsByProject(projectId);
 	}
 
+	@GetMapping("/deleted")
+	public List<TicketResponse> getDeletedTicketsByProject(@RequestParam Long projectId) {
+		return ticketService.getDeletedTicketsByProject(projectId);
+	}
+
 	@GetMapping("/{ticketId}")
 	public TicketResponse getTicketById(@PathVariable Long ticketId) {
 		return ticketService.getTicketById(ticketId);
@@ -52,5 +57,10 @@ public class TicketController {
 	@DeleteMapping("/{ticketId}")
 	public void deleteTicket(@PathVariable Long ticketId) {
 		ticketService.deleteTicket(ticketId);
+	}
+
+	@PostMapping("/{ticketId}/restore")
+	public void restoreTicket(@PathVariable Long ticketId) {
+		ticketService.restoreTicket(ticketId);
 	}
 }

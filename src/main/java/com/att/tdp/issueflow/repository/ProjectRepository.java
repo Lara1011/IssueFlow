@@ -9,5 +9,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 	List<Project> findAllByDeletedAtIsNull();
 
+	List<Project> findAllByDeletedAtIsNotNullOrderByDeletedAtDescIdDesc();
+
 	Optional<Project> findByIdAndDeletedAtIsNull(Long id);
 }

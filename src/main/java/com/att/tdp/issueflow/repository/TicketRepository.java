@@ -9,5 +9,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
 	List<Ticket> findAllByProjectIdAndDeletedAtIsNull(Long projectId);
 
+	List<Ticket> findAllByProjectIdAndDeletedAtIsNotNullOrderByDeletedAtDescIdDesc(Long projectId);
+
 	Optional<Ticket> findByIdAndDeletedAtIsNull(Long id);
 }

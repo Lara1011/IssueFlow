@@ -30,6 +30,11 @@ public class ProjectController {
 		return projectService.getAllProjects();
 	}
 
+	@GetMapping("/deleted")
+	public List<ProjectResponse> getDeletedProjects() {
+		return projectService.getDeletedProjects();
+	}
+
 	@GetMapping("/{projectId}")
 	public ProjectResponse getProjectById(@PathVariable Long projectId) {
 		return projectService.getProjectById(projectId);
@@ -51,5 +56,10 @@ public class ProjectController {
 	@DeleteMapping("/{projectId}")
 	public void deleteProject(@PathVariable Long projectId) {
 		projectService.deleteProject(projectId);
+	}
+
+	@PostMapping("/{projectId}/restore")
+	public void restoreProject(@PathVariable Long projectId) {
+		projectService.restoreProject(projectId);
 	}
 }

@@ -46,6 +46,14 @@ public class ProjectService {
 		return toResponse(findActiveProject(projectId));
 	}
 
+	@Transactional(readOnly = true)
+	public List<ProjectResponse> getDeletedProjects() {
+		return projectRepository.findAllByDeletedAtIsNotNullOrderByDeletedAtDescIdDesc()
+			.stream()
+			.map(this::toResponse)
+			.toList();
+	}
+
 	@Transactional
 	public ProjectResponse createProject(CreateProjectRequest request) {
 		if (!userRepository.existsById(request.ownerId())) {
@@ -81,6 +89,21 @@ public class ProjectService {
 		Project project = findActiveProject(projectId);
 		project.setDeletedAt(Instant.now());
 		auditLogService.record(AuditAction.DELETE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
+	}
+
+	@Transactional
+	public void restoreProject(Long projectId) {
+		Project project = findProject(projectId);
+		if (project.getDeletedAt() == null) {
+			return;
+		}
+		project.setDeletedAt(null);
+		auditLogService.record(AuditAction.RESTORE, AuditEntityType.PROJECT, project.getId(), null, AuditActor.USER);
+	}
+
+	private Project findProject(Long projectId) {
+		return projectRepository.findById(projectId)
+			.orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
 	}
 
 	private Project findActiveProject(Long projectId) {
