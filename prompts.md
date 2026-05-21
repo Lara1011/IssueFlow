@@ -547,6 +547,40 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 14 – Auto-Assignment and Workload API
+
+Summary of prompt:
+
+- Implement only Auto-Assignment and Workload API.
+- On `POST /tickets`, auto-assign a ticket only when `assigneeId` is omitted.
+- Use all users with role `DEVELOPER` as project candidates because the README does not define a project membership API; exclude `ADMIN` users.
+- Calculate workload as the count of non-deleted, non-`DONE` tickets assigned to each developer within the target project.
+- Choose the developer with the lowest workload, breaking ties by oldest registration order / smallest user id.
+- Leave tickets unassigned without error when no developer exists.
+- Do not trigger auto-assignment on ticket update; explicit `assigneeId` values on create or update override assignment behavior.
+- Add `GET /projects/{projectId}/workload`, returning all developers with `userId`, `username`, and `openTicketCount`, sorted by workload then user id.
+- Record `AUTO_ASSIGN` audit logs with actor `SYSTEM` only when the system assigns a developer.
+- Keep existing authentication behavior and require JWT like other protected endpoints.
+- Add integration tests for assignment selection, admin exclusion, tie-breaking, no-developer behavior, explicit overrides, workload sorting/counting, audit logs, project validation, and regression.
+- Run `./mvnw test` and mark Auto-assignment implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/ProjectController.java`
+- `src/main/java/com/att/tdp/issueflow/repository/TicketRepository.java`
+- `src/main/java/com/att/tdp/issueflow/repository/UserRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/ProjectService.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/main/java/com/att/tdp/issueflow/service/WorkloadService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/AutoAssignmentWorkloadIntegrationTest.java`
+- `src/test/java/com/att/tdp/issueflow/controller/AuditLogControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

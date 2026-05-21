@@ -80,8 +80,8 @@
 
 ## 14. Auto-assignment
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 15. Auto-escalation scheduler

@@ -3,6 +3,7 @@ package com.att.tdp.issueflow.service;
 import com.att.tdp.issueflow.dto.CreateProjectRequest;
 import com.att.tdp.issueflow.dto.ProjectResponse;
 import com.att.tdp.issueflow.dto.UpdateProjectRequest;
+import com.att.tdp.issueflow.dto.WorkloadResponse;
 import com.att.tdp.issueflow.entity.Project;
 import com.att.tdp.issueflow.enums.AuditAction;
 import com.att.tdp.issueflow.enums.AuditActor;
@@ -22,15 +23,18 @@ public class ProjectService {
 	private final ProjectRepository projectRepository;
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
+	private final WorkloadService workloadService;
 
 	public ProjectService(
 		ProjectRepository projectRepository,
 		UserRepository userRepository,
-		AuditLogService auditLogService
+		AuditLogService auditLogService,
+		WorkloadService workloadService
 	) {
 		this.projectRepository = projectRepository;
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
+		this.workloadService = workloadService;
 	}
 
 	@Transactional(readOnly = true)
@@ -52,6 +56,11 @@ public class ProjectService {
 			.stream()
 			.map(this::toResponse)
 			.toList();
+	}
+
+	@Transactional(readOnly = true)
+	public List<WorkloadResponse> getProjectWorkload(Long projectId) {
+		return workloadService.getProjectWorkload(projectId);
 	}
 
 	@Transactional

@@ -28,19 +28,22 @@ public class TicketService {
 	private final TicketDependencyRepository ticketDependencyRepository;
 	private final UserRepository userRepository;
 	private final AuditLogService auditLogService;
+	private final WorkloadService workloadService;
 
 	public TicketService(
 		TicketRepository ticketRepository,
 		ProjectRepository projectRepository,
 		TicketDependencyRepository ticketDependencyRepository,
 		UserRepository userRepository,
-		AuditLogService auditLogService
+		AuditLogService auditLogService,
+		WorkloadService workloadService
 	) {
 		this.ticketRepository = ticketRepository;
 		this.projectRepository = projectRepository;
 		this.ticketDependencyRepository = ticketDependencyRepository;
 		this.userRepository = userRepository;
 		this.auditLogService = auditLogService;
+		this.workloadService = workloadService;
 	}
 
 	@Transactional(readOnly = true)
@@ -70,6 +73,14 @@ public class TicketService {
 	public TicketResponse createTicket(CreateTicketRequest request) {
 		validateActiveProject(request.projectId());
 		validateAssigneeIfPresent(request.assigneeId());
+		Long assigneeId = request.assigneeId();
+		boolean autoAssigned = false;
+		if (assigneeId == null) {
+			assigneeId = workloadService.findLeastLoadedDeveloper(request.projectId())
+				.map(user -> user.getId())
+				.orElse(null);
+			autoAssigned = assigneeId != null;
+		}
 
 		Ticket ticket = new Ticket();
 		ticket.setTitle(request.title());
@@ -78,11 +89,20 @@ public class TicketService {
 		ticket.setPriority(request.priority());
 		ticket.setType(request.type());
 		ticket.setProjectId(request.projectId());
-		ticket.setAssigneeId(request.assigneeId());
+		ticket.setAssigneeId(assigneeId);
 		ticket.setDueDate(request.dueDate());
 
 		Ticket savedTicket = ticketRepository.save(ticket);
 		auditLogService.record(AuditAction.CREATE, AuditEntityType.TICKET, savedTicket.getId(), null, AuditActor.USER);
+		if (autoAssigned) {
+			auditLogService.record(
+				AuditAction.AUTO_ASSIGN,
+				AuditEntityType.TICKET,
+				savedTicket.getId(),
+				null,
+				AuditActor.SYSTEM
+			);
+		}
 		return toResponse(savedTicket);
 	}
 
