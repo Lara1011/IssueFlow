@@ -134,6 +134,79 @@ Relevant files created or updated from this prompt:
 - `prompts.md`
 - `implementation-plan.md`
 
+## Prompt 4 – Tickets API basic CRUD
+
+Summary of prompt:
+
+- Implement only the basic Tickets API CRUD feature from `README.md`.
+- Do not implement lifecycle restrictions, dependencies, comments, attachments, import/export, authentication/JWT, auto-assignment, or auto-escalation yet.
+- Use DTOs and keep JPA entities out of controller responses.
+- Keep `TicketController` thin and place business logic in `TicketService`.
+- Validate ticket creation with required `title`, `status`, `priority`, `type`, and `projectId`.
+- Allow optional `description`, `assigneeId`, and `dueDate`.
+- Validate ticket updates as partial updates for `title`, `description`, `status`, `priority`, `assigneeId`, and `dueDate`; do not allow updates to `type` or `projectId`.
+- Verify `projectId` refers to an existing non-deleted project when creating or listing tickets.
+- Verify `assigneeId` refers to an existing user when provided.
+- Return clear 404-style JSON errors for missing projects, assignees, and tickets.
+- Implement ticket deletion as soft delete by setting `deletedAt`.
+- Keep ticket GET endpoints limited to non-deleted tickets.
+- Return informative enum parse errors for invalid `status`, `priority`, and `type` values.
+- Keep `isOverdue` as `false` for now because escalation logic is a later feature.
+- Add MockMvc integration tests for create, create without assignee, missing project, missing assignee, list filtering, get by ID, update, soft delete, hidden deleted records, invalid enums, and validation errors.
+- Run `./mvnw test` and mark Tickets API basic CRUD implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `pom.xml`
+- `src/main/java/com/att/tdp/issueflow/controller/TicketController.java`
+- `src/main/java/com/att/tdp/issueflow/dto/CreateTicketRequest.java`
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateTicketRequest.java`
+- `src/main/java/com/att/tdp/issueflow/dto/TicketResponse.java`
+- `src/main/java/com/att/tdp/issueflow/entity/Ticket.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/repository/TicketRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/main/resources/application.yaml`
+- `src/test/resources/application.yaml`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
+## Prompt 4.1 – Ticket update lifecycle rules and informative errors fix
+
+Summary of prompt:
+
+- Fix only Tickets API update behavior after manual Postman testing found that DONE tickets could still be updated.
+- Enforce that a ticket cannot be updated once its existing status is `DONE`.
+- Enforce forward-only lifecycle transitions: `TODO -> IN_PROGRESS -> IN_REVIEW -> DONE`.
+- Reject backward transitions with one clear JSON error message.
+- Allow same-status updates only when the current status is not `DONE`.
+- Limit `PATCH /tickets/{ticketId}` request fields to `title`, `description`, `status`, `priority`, and `assigneeId`.
+- Do not allow `projectId`, `type`, or `dueDate` to change through the ticket update endpoint.
+- Keep controller logic thin and put lifecycle rules in `TicketService`.
+- Return business-rule failures as clear `409 Conflict` JSON errors.
+- Add MockMvc integration tests for DONE locking, backward transitions, allowed forward transitions, same-status updates, ignored fields, and error messages.
+- Tighten error assertions so the JSON `message` field is non-empty and mentions `DONE` or both lifecycle statuses where required.
+- Run `./mvnw test`.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/dto/UpdateTicketRequest.java`
+- `src/main/java/com/att/tdp/issueflow/exception/BusinessRuleException.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/service/TicketService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/TicketControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:

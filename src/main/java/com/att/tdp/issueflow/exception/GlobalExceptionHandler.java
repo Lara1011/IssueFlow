@@ -1,10 +1,9 @@
 package com.att.tdp.issueflow.exception;
 
-import com.att.tdp.issueflow.enums.UserRole;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,6 +55,14 @@ public class GlobalExceptionHandler {
 		return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of());
 	}
 
+	@ExceptionHandler(BusinessRuleException.class)
+	public ResponseEntity<ApiErrorResponse> handleBusinessRule(
+		BusinessRuleException exception,
+		HttpServletRequest request
+	) {
+		return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request, Map.of());
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiErrorResponse> handleUnexpected(
 		Exception exception,
@@ -90,16 +97,21 @@ public class GlobalExceptionHandler {
 	private String resolveUnreadableBodyMessage(HttpMessageNotReadableException exception) {
 		Throwable cause = exception.getCause();
 		if (cause instanceof InvalidFormatException invalidFormatException
-			&& invalidFormatException.getTargetType() == UserRole.class
+			&& invalidFormatException.getTargetType().isEnum()
 			&& invalidFormatException.getPath() != null
-			&& invalidFormatException.getPath().stream().anyMatch(reference -> "role".equals(reference.getFieldName()))) {
-			return "role must be one of: " + acceptedValues(UserRole.class);
+			&& !invalidFormatException.getPath().isEmpty()) {
+			String fieldName = invalidFormatException.getPath()
+				.getLast()
+				.getFieldName();
+			return fieldName + " must be one of: " + acceptedEnumValues(invalidFormatException.getTargetType());
 		}
 
 		return "Request body is invalid";
 	}
 
-	private String acceptedValues(Class<? extends Enum<?>> enumType) {
+	@SuppressWarnings("unchecked")
+	private String acceptedEnumValues(Class<?> targetType) {
+		Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) targetType;
 		return Arrays.stream(enumType.getEnumConstants())
 			.map(Enum::name)
 			.collect(Collectors.joining(", "));
