@@ -62,8 +62,8 @@
 
 ## 11. Attachments
 
-- [ ] Implementation
-- [ ] Tests
+- [x] Implementation
+- [x] Tests
 - [ ] Manual verification
 
 ## 12. CSV export/import

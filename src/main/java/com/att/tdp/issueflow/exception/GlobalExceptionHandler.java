@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -76,6 +78,23 @@ public class GlobalExceptionHandler {
 	) {
 		String message = exception.getParameterName() + " is required";
 		return buildResponse(HttpStatus.BAD_REQUEST, message, request, Map.of());
+	}
+
+	@ExceptionHandler(MissingServletRequestPartException.class)
+	public ResponseEntity<ApiErrorResponse> handleMissingRequestPart(
+		MissingServletRequestPartException exception,
+		HttpServletRequest request
+	) {
+		String message = exception.getRequestPartName() + " is required";
+		return buildResponse(HttpStatus.BAD_REQUEST, message, request, Map.of());
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(
+		MaxUploadSizeExceededException exception,
+		HttpServletRequest request
+	) {
+		return buildResponse(HttpStatus.BAD_REQUEST, "file must be 10 MB or smaller", request, Map.of());
 	}
 
 	@ExceptionHandler(BusinessRuleException.class)

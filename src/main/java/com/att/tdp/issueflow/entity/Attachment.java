@@ -22,6 +22,9 @@ public class Attachment extends BaseEntity {
 
 	private Long uploadedBy;
 
+	@Column(columnDefinition = "bytea")
+	private byte[] data;
+
 	public Long getTicketId() {
 		return ticketId;
 	}
@@ -68,5 +71,13 @@ public class Attachment extends BaseEntity {
 
 	public void setUploadedBy(Long uploadedBy) {
 		this.uploadedBy = uploadedBy;
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
+	public void setData(byte[] data) {
+		this.data = data;
 	}
 }

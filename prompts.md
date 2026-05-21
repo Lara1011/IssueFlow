@@ -442,6 +442,38 @@ Command run:
 
 - `./mvnw test`
 
+## Prompt 11 – Attachments API
+
+Summary of prompt:
+
+- Implement only the Attachments API.
+- Add `POST /tickets/{ticketId}/attachments` for multipart upload using field name `file`.
+- Add `DELETE /tickets/{ticketId}/attachments/{attachmentId}` for attachment deletion.
+- Verify the ticket exists and is not soft-deleted before upload or delete.
+- Validate uploaded files are present, non-empty, no larger than 10 MB, and one of the allowed content types: `image/png`, `image/jpeg`, `application/pdf`, or `text/plain`.
+- Store attachment metadata and file bytes in the database because the current API only requires metadata response and deletion.
+- Return attachment upload responses with `id`, `ticketId`, `filename`, and `contentType`.
+- Record audit logs for `UPLOAD_ATTACHMENT` and `DELETE_ATTACHMENT`.
+- Return informative errors for missing tickets, empty or missing files, unsupported content type, oversized files, missing attachments, and attachments belonging to another ticket.
+- Do not implement import/export, authentication/JWT, auto-assignment, or auto-escalation.
+- Add MockMvc multipart integration tests for successful uploads, validation failures, deletion behavior, audit logging, and existing test regression.
+- Run `./mvnw test` and mark Attachments implementation/tests complete only if tests pass.
+
+Relevant files created or updated from this prompt:
+
+- `src/main/java/com/att/tdp/issueflow/controller/AttachmentController.java`
+- `src/main/java/com/att/tdp/issueflow/entity/Attachment.java`
+- `src/main/java/com/att/tdp/issueflow/exception/GlobalExceptionHandler.java`
+- `src/main/java/com/att/tdp/issueflow/repository/AttachmentRepository.java`
+- `src/main/java/com/att/tdp/issueflow/service/AttachmentService.java`
+- `src/test/java/com/att/tdp/issueflow/controller/AttachmentControllerIntegrationTest.java`
+- `prompts.md`
+- `implementation-plan.md`
+
+Command run:
+
+- `./mvnw test`
+
 ## Future prompts
 
 Add each future feature prompt here with:
