@@ -22,9 +22,6 @@ spring:
           time_zone: UTC
     hibernate:
       ddl-auto: update
-  sql:
-    init:
-      mode: always
   servlet:
     multipart:
       max-file-size: 10MB
@@ -36,4 +33,4 @@ issueflow:
     expires-in-seconds: 3600
   auto-escalation:
     fixed-delay-ms: 60000
-    initial-delay-ms: 60000
+    initial-delay-ms: 10000

@@ -40,7 +40,7 @@ public class Ticket extends BaseEntity {
 
 	private Instant dueDate;
 
-	@Column(nullable = false)
+	@Column(name = "overdue", nullable = false, columnDefinition = "boolean default false")
 	private boolean overdue = false;
 
 	private Instant deletedAt;

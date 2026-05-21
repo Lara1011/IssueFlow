@@ -23,3 +23,7 @@ Act as a Senior Backend Engineer specializing in Java, Spring Boot, REST APIs, P
 - Use consistent JSON error responses.
 - Use optimistic locking where simultaneous updates are required to be prevented.
 - Use soft delete for tickets and projects instead of hard delete.
+
+## Owner Review
+
+The agent may assist with planning, implementation, testing, debugging, and documentation, but the owner is responsible for reviewing, running, understanding, and validating all submitted code.
